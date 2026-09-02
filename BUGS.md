@@ -48,17 +48,14 @@ Keep this file in the repo and **commit it** with your fixes.
 
 **What I changed:** Updated the condition in `src/App.jsx` to `Number(e.paidBy) !== Number(paidBy)` to ensure consistent numeric comparison between the selected payer ID and expense `paidBy`.
 
+---
 
-<!--  How to reproduce
-Open the app.
+## Bug 5
 
-In the Filter card, click the Paid by dropdown.
+**How to reproduce:** Open the app and click "Delete" on the first row ("Board game"). Instead of deleting "Board game", "Groceries" is deleted. Similarly, filter by any category (e.g. "Stay") and edit or delete an expense — an unrelated expense from the main list is modified/deleted.
 
-Select any person, for example "Aisha Khan" or "Carlos Mendes".
+**What is wrong:** `ExpenseList` passed the UI index of the sorted and filtered array to `onDeleteAt` and `onUpdateAt`. In `store.js`, `reducer` used `action.index` against `state.expenses`. Since the filtered/sorted index does not match the original array index in `state.expenses`, operations targeted the wrong item. Additionally, using `key={index}` caused React to retain stale component state on re-order.
 
-Result: The expense list immediately says:
+**What I changed:** Updated `DELETE_EXPENSE` and `UPDATE_EXPENSE` actions in `store.js` and props in `App.jsx` and `ExpenseList.jsx` to identify expenses by unique `id` rather than array index. Changed the row key to `key={expense.id}`.
 
-"No expenses match these filters."
-
-Even though Aisha paid for "Groceries" and "Museum tickets", selecting her (or anyone else) completely empties the list.
---- -->
+---

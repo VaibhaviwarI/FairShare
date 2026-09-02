@@ -55,8 +55,8 @@ function ExpenseRow({ expense, memberMap, onDelete, onSaveAmount }) {
 export default function ExpenseList({
   expenses,
   members,
-  onDeleteAt,
-  onUpdateAt,
+  onDelete,
+  onUpdate,
 }) {
   const memberMap = Object.fromEntries(members.map((m) => [m.id, m]));
   // const sorted = [...expenses].sort((a, b) => dateValue(a.date) - dateValue(b.date)); //Bug 1
@@ -73,13 +73,16 @@ export default function ExpenseList({
       {sorted.length === 0 ? (
         <p className="empty">No expenses match these filters.</p>
       ) : (
-        sorted.map((expense, index) => (
+        // Bug 5:
+        // Use expense.id as key and pass expense.id to onDelete and onUpdate.
+        // Using array index resulted in wrong items being deleted/updated when sorted or filtered.
+        sorted.map((expense) => (
           <ExpenseRow
-            key={index}
+            key={expense.id}
             expense={expense}
             memberMap={memberMap}
-            onDelete={() => onDeleteAt(index)}
-            onSaveAmount={(amount) => onUpdateAt(index, { amount })}
+            onDelete={() => onDelete(expense.id)}
+            onSaveAmount={(amount) => onUpdate(expense.id, { amount })}
           />
         ))
       )}

@@ -44,14 +44,21 @@ export function reducer(state, action) {
       return { ...state, expenses: [...state.expenses, action.expense] };
     }
     case "DELETE_EXPENSE": {
-      const next = state.expenses.slice();
-      next.splice(action.index, 1);
-      return { ...state, expenses: next };
+      // Bug 5: Identify expenses by unique 'id' instead of array index.
+      // Filtering and sorting the list changes array positions, so deleting by index targets the wrong item.
+      return {
+        ...state,
+        expenses: state.expenses.filter((e) => e.id !== action.id),
+      };
     }
     case "UPDATE_EXPENSE": {
-      const next = state.expenses.slice();
-      next[action.index] = { ...next[action.index], ...action.patch };
-      return { ...state, expenses: next };
+      // Bug 5: Update the expense matching action.id rather than array index.
+      return {
+        ...state,
+        expenses: state.expenses.map((e) =>
+          e.id === action.id ? { ...e, ...action.patch } : e
+        ),
+      };
     }
     case "ADD_MEMBER": {
       return { ...state, members: [...state.members, action.member] };
