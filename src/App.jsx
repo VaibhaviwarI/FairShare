@@ -33,7 +33,12 @@ export default function App() {
     return state.expenses.filter((e) => {
       if (q && !e.description.toLowerCase().includes(q)) return false;
       if (category !== "All" && e.category !== category) return false;
-      if (paidBy !== "" && e.paidBy !== paidBy) return false;
+      // Bug 4:
+      // In the select dropdown, e.target.value is a string (e.g. "1"), whereas e.paidBy is a number (e.g. 1).
+      // Using strict inequality (e.paidBy !== paidBy) causes a type mismatch ('1' !== 1), so all expenses get filtered out.
+      // We convert Number(paidBy) or Number(e.paidBy) so both sides match types.
+      // if (paidBy !== "" && e.paidBy !== paidBy) return false;
+      if (paidBy !== "" && Number(e.paidBy) !== Number(paidBy)) return false;
       return true;
     });
   }, [state.expenses, query, category, paidBy]);

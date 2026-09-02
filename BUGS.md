@@ -25,7 +25,7 @@ Keep this file in the repo and **commit it** with your fixes.
 
 **What is wrong:** In `src/lib/balances.js`, if the payer is not in the split (`!(exp.paidBy in shares)`), the function penalizes the payer by subtracting `amount / n` from their balance. The payer is unfairly charged for an expense they did not share, and group net balances fail to sum to zero.
 
-**What I changed:**In `src/lib/balances.js`, if the payer is not in the split (`!(exp.paidBy in shares)`), the function penalizes the payer by subtracting `amount / n` from their balance. The payer is unfairly charged for an expense they did not share, and group net balances fail to sum to zero.
+**What I changed:** Removed the penalty deduction block in `src/lib/balances.js` so that payers who are not part of the split receive full credit for what they paid, while only members in `splitWith` have their respective shares deducted.
 
 ---
 

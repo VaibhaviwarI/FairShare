@@ -13,10 +13,14 @@ export function computeBalances(members, expenses) {
       bal[key] = (bal[key] || 0) - share;
     }
 
-    if (!(exp.paidBy in shares) && !(String(exp.paidBy) in shares)) {
-      const n = exp.splitWith.length || 1;
-      bal[exp.paidBy] -= Number(exp.amount) / n;
-    }
+    // Bug 2:
+    // A person can pay for an expense without being part of the split (e.g. paying for someone else's cab).
+    // The payer is credited the full amount (+amount). Each consumer has their share deducted (-share).
+    // If the payer is not in shares, we must NOT deduct any share from them, ensuring total group balances sum to 0.
+    // if (!(exp.paidBy in shares) && !(String(exp.paidBy) in shares)) {
+    //   const n = exp.splitWith.length || 1;
+    //   bal[exp.paidBy] -= Number(exp.amount) / n;
+    // }
   }
 
   return bal;
