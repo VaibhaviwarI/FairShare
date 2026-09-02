@@ -59,7 +59,12 @@ export default function ExpenseList({
   onUpdateAt,
 }) {
   const memberMap = Object.fromEntries(members.map((m) => [m.id, m]));
-  const sorted = [...expenses].sort((a, b) => dateValue(a.date) - dateValue(b.date));
+  // const sorted = [...expenses].sort((a, b) => dateValue(a.date) - dateValue(b.date)); //Bug 1
+  const sorted = [...expenses].sort((a, b) => dateValue(b.date) - dateValue(a.date));
+
+//Sorting will give us a.date to be then b.date where a.date < b.date so b.date is always greater than a.date
+// a.date - b.date will give us negative values so basically it will filter oldest first then newset as negatives are lesser than positives
+
 
   return (
     <section className="card">
