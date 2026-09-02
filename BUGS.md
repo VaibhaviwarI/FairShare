@@ -58,4 +58,15 @@ Keep this file in the repo and **commit it** with your fixes.
 
 **What I changed:** Updated `DELETE_EXPENSE` and `UPDATE_EXPENSE` actions in `store.js` and props in `App.jsx` and `ExpenseList.jsx` to identify expenses by unique `id` rather than array index. Changed the row key to `key={expense.id}`.
 
----
+---
+
+## Bug 6
+
+**How to reproduce:** In a scenario where a debtor's negative balance matches a creditor's positive balance exactly (e.g. one member owes $50 and another member is owed $50), check the "Settle up" panel.
+
+**What is wrong:** In `src/lib/settle.js`, the `suggestSettlements` function handles `d.amount > c.amount` and `d.amount < c.amount` by pushing a transfer and adjusting amounts. However, when `d.amount === c.amount`, the `else` block only incremented indices (`i += 1; j += 1`) without adding the transfer to the `transfers` array, completely dropping exact-matching debt settlements.
+
+**What I changed:** In `src/lib/settle.js`, updated the `else` block to push a transfer of `d.amount` from the debtor to the creditor before incrementing `i` and `j`.
+
+---
+

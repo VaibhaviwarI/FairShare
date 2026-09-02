@@ -43,6 +43,15 @@ export function suggestSettlements(balances, members) {
       c.amount -= d.amount;
       i += 1;
     } else {
+      // Bug 6: When d.amount === c.amount, record the transfer before advancing both pointers.
+      // Previously, the else block only incremented i and j without pushing to transfers, dropping equal debts completely.
+      transfers.push({
+        from: d.id,
+        to: c.id,
+        fromName: nameOf(d.id),
+        toName: nameOf(c.id),
+        amount: d.amount,
+      });
       i += 1;
       j += 1;
     }
