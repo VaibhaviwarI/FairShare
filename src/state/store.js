@@ -19,7 +19,8 @@ export function loadState(seed) {
       localStorage.setItem(KEY, JSON.stringify(initial));
       return initial;
     }
-    return JSON.parse(raw);
+    // Bug 8: Hydrate stored state so string dates are converted back into Date objects
+    return hydrate(JSON.parse(raw));
   } catch {
     return hydrate(seed);
   }

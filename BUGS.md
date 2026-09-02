@@ -98,4 +98,29 @@ Similarly, filter by category "Stay" (shows only "Airbnb deposit" at the top). T
 
 **What I changed:** Updated `splitEqual` and `splitByPercent` in `src/lib/money.js` to calculate in exact cents and distribute remainder cents so that the sum of all individual shares strictly equals the total expense amount. Also updated `percentsSumTo100` to avoid floating-point rounding errors.
 
+// How to reproduce
+1. Look at "Groceries" ($100, split equally between 3 people: Aisha, Ben, Carlos):
+   - 100 / 3 = $33.33 each.
+   - Total shares: $33.33 + $33.33 + $33.33 = $99.99 ($0.01 lost!).
+2. Now look at "Wine" ($20, split with custom percentages 33.33%, 33.33%, 33.34%):
+   - $20 * 33.33% = $6.67, $20 * 33.33% = $6.67, $20 * 33.34% = $6.67.
+   - Total shares: $6.67 + $6.67 + $6.67 = $20.01 ($0.01 invented!).
+What happens:
+Rounding remainders are not allocated, causing pennies to be lost or invented, violating the requirement that total shares must always match the original expense amount.
+---
+
+## Bug 8
+
+**How to reproduce:** Open the app and refresh the browser page (or close and reload). Look at the dates in the expense list and try sorting or filtering.
+
+**What is wrong:** In `src/state/store.js`, `loadState` called `JSON.parse(raw)` without rehydrating date strings back into `Date` objects. Consequently, `expense.date` became a plain string. In `src/lib/format.js`, `dateValue` returned the date unmodified without converting to timestamp, so `dateValue(b.date) - dateValue(a.date)` evaluated to `NaN` (e.g. `"2026-03-15" - "2026-03-12" = NaN`), breaking sorting completely. Additionally, `formatDate` only sliced strings to `YYYY-MM-DD` instead of formatting them into friendly locale dates (`DD MMM YYYY`).
+
+**What I changed:** Wrapped loaded state in `hydrate(JSON.parse(raw))` in `src/state/store.js`. In `src/lib/format.js`, updated `formatDate` to safely parse date strings into `Date` objects for localized formatting, and updated `dateValue` to always return a numeric timestamp (`d.getTime()`) to prevent `NaN` during sorting.
+
+// How to reproduce
+1. Open the app and observe the dates in the expense list (e.g. "15 Mar 2026").
+2. Refresh the browser page (F5) so data reloads from localStorage.
+What happens:
+- The dates switch from formatted strings ("15 Mar 2026") to raw strings ("2026-03-15").
+- Sorting breaks because `dateValue` returns raw strings and `dateValue(b.date) - dateValue(a.date)` evaluates to `NaN` ("2026-03-15" - "2026-03-12" = NaN).
 ---
