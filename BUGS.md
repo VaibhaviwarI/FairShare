@@ -123,4 +123,20 @@ Rounding remainders are not allocated, causing pennies to be lost or invented, v
 What happens:
 - The dates switch from formatted strings ("15 Mar 2026") to raw strings ("2026-03-15").
 - Sorting breaks because `dateValue` returns raw strings and `dateValue(b.date) - dateValue(a.date)` evaluates to `NaN` ("2026-03-15" - "2026-03-12" = NaN).
+---
+
+## Bug 9
+
+**How to reproduce:** In the "Summary" card on the right, look at the "Paid so far" list. Under "Add member", enter a name (e.g. "Elena") and click "Add".
+
+**What is wrong:** In `src/components/SummaryCards.jsx`, `perPerson` is computed inside a `useMemo` hook with dependency array `[expenses]`, omitting `members`. When a new member is added, `members` prop changes, but `perPerson` is not recomputed, so the new member fails to appear in the "Paid so far" breakdown until an expense is added or modified.
+
+**What I changed:** Added `members` to the dependency array of `useMemo` (`[expenses, members]`) in `src/components/SummaryCards.jsx` so the list recalculates immediately when members are added.
+
+// How to reproduce
+1. Look at the "Paid so far" list in the Summary card (shows 4 members).
+2. Type a new name (e.g. "Elena") in the "Add member" field and click "Add".
+What happens:
+- The member count updates to 5, but Elena does NOT appear in the "Paid so far" list.
+- Her name only shows up after an expense is separately added or edited.
 ---

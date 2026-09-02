@@ -5,6 +5,7 @@ import { totalSpent } from "../lib/balances.js";
 export default function SummaryCards({ members, expenses, onAddMember }) {
   const [name, setName] = useState("");
 
+  // Bug 9: Include members in the dependency array so perPerson recalculates whenever a new member is added.
   const perPerson = useMemo(() => {
     return members.map((m) => {
       const paid = expenses
@@ -12,7 +13,7 @@ export default function SummaryCards({ members, expenses, onAddMember }) {
         .reduce((s, e) => s + Number(e.amount), 0);
       return { id: m.id, name: m.name, paid };
     });
-  }, [expenses]);
+  }, [expenses, members]);
 
   const spent = totalSpent(expenses);
 
