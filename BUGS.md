@@ -139,4 +139,20 @@ What happens:
 What happens:
 - The member count updates to 5, but Elena does NOT appear in the "Paid so far" list.
 - Her name only shows up after an expense is separately added or edited.
+---
+
+## Bug 10
+
+**How to reproduce:** In "Add expense", enter a Description ("Snacks") and Amount (15), then click "Save expense". Notice whether the form fields reset. Also add a new member and check if they are selected in "Split between".
+
+**What is wrong:** In `src/components/AddExpenseForm.jsx`, the form submission handler did not clear `description` and `amount`, leaving previously entered values in the input fields after an expense was added. Additionally, `splitWith` was initialized only once on mount, so newly added group members were not automatically included in the default split selection.
+
+**What I changed:** Updated `submit()` in `src/components/AddExpenseForm.jsx` to clear `description` and `amount` after adding an expense. Added a `useEffect` hook to keep `splitWith` and `paidBy` synchronized when new members are added to the group.
+
+// How to reproduce
+1. In "Add expense", fill in Description ("Snacks") and Amount (15), then click "Save expense".
+What happens:
+- The inputs do not clear — "Snacks" and "15" stay in the fields, forcing the user to manually erase them before entering the next expense.
+2. Add a new member in the Summary card:
+- The new member's chip appears in the form, but is unselected by default for subsequent splits.
 ---

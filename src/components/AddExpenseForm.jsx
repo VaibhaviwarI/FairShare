@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { percentsSumTo100 } from "../lib/money.js";
 
 const CATEGORIES = ["Food", "Travel", "Fun", "Stay"];
@@ -23,6 +23,17 @@ export default function AddExpenseForm({ members, onAdd }) {
   const [splitWith, setSplitWith] = useState(members.map((m) => m.id));
   const [percents, setPercents] = useState(evenPercents(members.map((m) => m.id)));
   const [error, setError] = useState("");
+
+  // Bug 10: Keep splitWith and percents in sync when members are added
+  useEffect(() => {
+    setSplitWith((prev) => {
+      const allIds = members.map((m) => m.id);
+      const next = prev.length === 0 ? allIds : allIds;
+      setPercents(evenPercents(next));
+      return next;
+    });
+    setPaidBy((prev) => prev || (members[0]?.id ?? ""));
+  }, [members]);
 
   const selected = useMemo(
     () => members.filter((m) => splitWith.includes(m.id)),
@@ -64,6 +75,10 @@ export default function AddExpenseForm({ members, onAdd }) {
       date: new Date(date),
       category,
     });
+
+    // Bug 10: Clear description and amount fields after saving an expense so the form is ready for the next entry.
+    setDescription("");
+    setAmount("");
   }
 
   return (
